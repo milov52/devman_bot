@@ -44,7 +44,7 @@ def main():
                 attempt = reviews['new_attempts']
                 bot.send_message(chat_id=CHAT_ID, text=get_answer(attempt[0]))
         except requests.exceptions.ReadTimeout:
-            requests.get(LONG_POOLING_URL, headers=headers, params=payloads)
+            pass
         except requests.exceptions.ConnectionError:
             print('Connection error')
             time.sleep(30)
