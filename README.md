@@ -43,9 +43,9 @@ pip install -r requirements.txt
 Создать файл `.env` в каталоге и добавьте туда значения для данных переменных:
 Пример:
 ```
-API_KEY=123
-TOKEN=6699
-CHAT_ID=848
+DEVMAN_API_KEY=123
+TG_TOKEN=6699
+TG_CHAT_ID=848
 ```
 
 Для запуска скрипта указать команду

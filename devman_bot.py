@@ -1,26 +1,28 @@
 import os
+import time
 
 import requests
 import telegram
 from dotenv import load_dotenv
 
-load_dotenv()
-
 LONG_POOLING_URL = "https://dvmn.org/api/long_polling/"
-API_KEY = os.getenv("API_KEY")
-TOKEN = os.getenv("TOKEN")
-CHAT_ID = os.getenv("CHAT_ID")
 
-def get_answer(response):
-    lesson_title = response['lesson_title']
-    lesson_url = response['lesson_url']
+
+def get_answer(attempt):
+    lesson_title = attempt['lesson_title']
+    lesson_url = attempt['lesson_url']
     check_result = 'К сожалению, в работе нашлись ошибки'
-    if not response['is_negative']:
+    if not attempt['is_negative']:
         check_result = 'Преподавателю все понравилось, можете приступать к след. уроку'
 
     return f'У вас проверили работу "{lesson_title}"\n{lesson_url}\n\n{check_result}'
 
+
 def main():
+    API_KEY = os.getenv("DEVMAN_API_KEY")
+    TOKEN = os.getenv("TG_TOKEN")
+    CHAT_ID = os.getenv("TG_CHAT_ID")
+
     headers = {
         "Authorization": f"Token {API_KEY}",
     }
@@ -30,21 +32,24 @@ def main():
     while True:
         try:
             payloads = {"timestamp": timestamp}
-            response = requests.get(LONG_POOLING_URL, headers=headers, params=payloads)
-            response.raise_for_status()
-            response = response.json()
+            reviews = requests.get(LONG_POOLING_URL, headers=headers, params=payloads)
+            reviews.raise_for_status()
+            reviews = reviews.json()
 
-            if response["status"] == 'timeout':
-                timestamp = response["timestamp_to_request"]
+            if reviews["status"] == 'timeout':
+                timestamp = reviews["timestamp_to_request"]
             else:
-                response = response['new_attempts']
-                timestamp = response[0]['timestamp']
-                bot.send_message(chat_id=CHAT_ID, text=get_answer(response[0]))
+                timestamp = reviews['last_attempt_timestamp']
+
+                attempt = reviews['new_attempts']
+                bot.send_message(chat_id=CHAT_ID, text=get_answer(attempt[0]))
         except requests.exceptions.ReadTimeout:
-            print('Ошибка ожидания timeout')
+            requests.get(LONG_POOLING_URL, headers=headers, params=payloads)
         except requests.exceptions.ConnectionError:
             print('Connection error')
+            time.sleep(30)
 
 
 if __name__ == '__main__':
+    load_dotenv()
     main()
