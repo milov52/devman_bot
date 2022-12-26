@@ -29,7 +29,7 @@ def main():
     }
 
     timestamp = ''
-    logging.DEBUG('bot started')
+    logging.debug('bot started')
     bot = telegram.Bot(token=TOKEN)
     while True:
         try:
