@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 
@@ -28,6 +29,7 @@ def main():
     }
 
     timestamp = ''
+    logging.DEBUG('bot started')
     bot = telegram.Bot(token=TOKEN)
     while True:
         try:
@@ -51,5 +53,6 @@ def main():
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
     load_dotenv()
     main()
