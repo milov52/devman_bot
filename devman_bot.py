@@ -40,27 +40,25 @@ def main():
 
     timestamp = ''
 
-
     bot = telegram.Bot(token=TOKEN)
+
     logger = logging.getLogger('Logger')
     logger.setLevel(logging.DEBUG)
     logger.addHandler(TelegramLogsHandler(bot, CHAT_ID))
 
     logger.info('bot started')
-
-    try:
-        result = 1/0
-    except:
-        logger.error('лог упал с ошибкой')
-        logger.error('division by zero')
-
     while True:
         try:
             payloads = {"timestamp": timestamp}
-            reviews = requests.get(LONG_POOLING_URL, headers=headers, params=payloads)
-            reviews.raise_for_status()
-            reviews = reviews.json()
 
+            try:
+                reviews = requests.get(LONG_POOLING_URL, headers=headers, params=payloads)
+                reviews.raise_for_status()
+            except requests.exceptions.HTTPError as err:
+                logger.error('Бот упал с ошибкой')
+                logger.error(err, exc_info=True)
+
+            reviews = reviews.json()
             if reviews["status"] == 'timeout':
                 timestamp = reviews["timestamp_to_request"]
             else:
@@ -71,12 +69,10 @@ def main():
         except requests.exceptions.ReadTimeout:
             pass
         except requests.exceptions.ConnectionError:
-            print('Connection error')
+            logger.error('Бот упал с ошибкой')
+            logger.error(err, exc_info=True)
             time.sleep(30)
 
-
 if __name__ == '__main__':
-
-
     load_dotenv()
     main()
