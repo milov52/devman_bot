@@ -33,7 +33,9 @@ def get_answer(attempt):
 def main():
     api_key = os.getenv("DEVMAN_API_KEY")
     token = os.getenv("TG_TOKEN")
-    token_loger = os.getenv("TG_LOGGER_TOKEN")
+
+    token_logger = os.getenv("TG_LOGGER_TOKEN")
+
 
     chat_id = os.getenv("TG_CHAT_ID")
 
@@ -44,7 +46,8 @@ def main():
     timestamp = ''
 
     bot = telegram.Bot(token=token)
-    bot_logger = telegram.Bot(token=token_loger)
+
+    bot_logger = telegram.Bot(token=token_logger)
 
     logger.setLevel(logging.DEBUG)
     logger.addHandler(TelegramLogsHandler(bot_logger, chat_id))
