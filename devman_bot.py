@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 LONG_POOLING_URL = "https://dvmn.org/api/long_polling/"
 
+logger = logging.getLogger('Logger')
 class TelegramLogsHandler(logging.Handler):
 
     def __init__(self, tg_bot, chat_id):
@@ -45,7 +46,6 @@ def main():
     bot = telegram.Bot(token=TOKEN)
     bot_logger = telegram.Bot(token=TOKEN_LOGGER)
 
-    logger = logging.getLogger('Logger')
     logger.setLevel(logging.DEBUG)
     logger.addHandler(TelegramLogsHandler(bot_logger, CHAT_ID))
 
