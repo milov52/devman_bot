@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 LONG_POOLING_URL = "https://dvmn.org/api/long_polling/"
 
+logger = logging.getLogger('Logger')
 class TelegramLogsHandler(logging.Handler):
 
     def __init__(self, tg_bot, chat_id):
@@ -30,36 +31,31 @@ def get_answer(attempt):
 
 
 def main():
-    API_KEY = os.getenv("DEVMAN_API_KEY")
-    TOKEN = os.getenv("TG_TOKEN")
-    TOKEN_LOGGER = os.getenv("TG_LOGGER_TOKEN")
+    api_key = os.getenv("DEVMAN_API_KEY")
+    token = os.getenv("TG_TOKEN")
+    token_loger = os.getenv("TG_LOGGER_TOKEN")
 
-    CHAT_ID = os.getenv("TG_CHAT_ID")
+    chat_id = os.getenv("TG_CHAT_ID")
 
     headers = {
-        "Authorization": f"Token {API_KEY}",
+        "Authorization": f"Token {api_key}",
     }
 
     timestamp = ''
 
-    bot = telegram.Bot(token=TOKEN)
-    bot_logger = telegram.Bot(token=TOKEN_LOGGER)
+    bot = telegram.Bot(token=token)
+    bot_logger = telegram.Bot(token=token_loger)
 
-    logger = logging.getLogger('Logger')
     logger.setLevel(logging.DEBUG)
-    logger.addHandler(TelegramLogsHandler(bot_logger, CHAT_ID))
+    logger.addHandler(TelegramLogsHandler(bot_logger, chat_id))
 
     logger.info('bot started')
     while True:
         try:
             payloads = {"timestamp": timestamp}
 
-            try:
-                reviews = requests.get(LONG_POOLING_URL, headers=headers, params=payloads)
-                reviews.raise_for_status()
-            except requests.exceptions.HTTPError as err:
-                logger.error('Бот упал с ошибкой')
-                logger.error(err, exc_info=True)
+            reviews = requests.get(LONG_POOLING_URL, headers=headers, params=payloads)
+            reviews.raise_for_status()
 
             reviews = reviews.json()
             if reviews["status"] == 'timeout':
@@ -68,13 +64,16 @@ def main():
                 timestamp = reviews['last_attempt_timestamp']
 
                 attempt = reviews['new_attempts']
-                bot.send_message(chat_id=CHAT_ID, text=get_answer(attempt[0]))
+                bot.send_message(chat_id=chat_id, text=get_answer(attempt[0]))
         except requests.exceptions.ReadTimeout:
             pass
         except requests.exceptions.ConnectionError:
             logger.error('Бот упал с ошибкой')
             logger.error(err, exc_info=True)
             time.sleep(30)
+        except requests.exceptions.HTTPError as err:
+            logger.error('Бот упал с ошибкой')
+            logger.error(err, exc_info=True)
 
 if __name__ == '__main__':
     load_dotenv()
