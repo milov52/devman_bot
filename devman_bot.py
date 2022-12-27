@@ -54,12 +54,8 @@ def main():
         try:
             payloads = {"timestamp": timestamp}
 
-            try:
-                reviews = requests.get(LONG_POOLING_URL, headers=headers, params=payloads)
-                reviews.raise_for_status()
-            except requests.exceptions.HTTPError as err:
-                logger.error('Бот упал с ошибкой')
-                logger.error(err, exc_info=True)
+            reviews = requests.get(LONG_POOLING_URL, headers=headers, params=payloads)
+            reviews.raise_for_status()
 
             reviews = reviews.json()
             if reviews["status"] == 'timeout':
@@ -75,6 +71,9 @@ def main():
             logger.error('Бот упал с ошибкой')
             logger.error(err, exc_info=True)
             time.sleep(30)
+        except requests.exceptions.HTTPError as err:
+            logger.error('Бот упал с ошибкой')
+            logger.error(err, exc_info=True)
 
 if __name__ == '__main__':
     load_dotenv()
