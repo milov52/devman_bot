@@ -54,3 +54,20 @@ TG_LOGGER_TOKEN=333
 ```sh
 python3 devman_bot.py
 ```
+
+## Запуск бота в Docker контейнере
+Для создания docker образа выполнить команду
+```
+docker build -t status_devman_bot .
+```
+
+
+Для запуска бота в docker контейнере из созданного образа выполнить команду (заполнив значения переменных окружения)
+```sh
+docker run  --rm -d \
+-e DEVMAN_API_KEY='123' \
+-e TG_TOKEN='6699' \
+-e TG_LOGGER_TOKEN='848' \
+-e TG_CHAT_ID='335' \
+--name status_bot status_devman_bot
+```
