@@ -70,7 +70,7 @@ def main():
                 bot.send_message(chat_id=chat_id, text=get_answer(attempt[0]))
         except requests.exceptions.ReadTimeout:
             pass
-        except requests.exceptions.ConnectionError:
+        except requests.exceptions.ConnectionError as err:
             logger.error('Бот упал с ошибкой')
             logger.error(err, exc_info=True)
             time.sleep(30)
